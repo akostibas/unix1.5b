@@ -6,22 +6,6 @@ colors=(red green blue purple cyan yellow brown)
 lock_file=
 lock_file_base=/tmp/$(basename "$0" .sh)
 
-multiple=0
-if [[ "$1" ]]; then
-    nsingle=$1
-    shift
-else
-    nsingle=10
-fi
-if [[ "$1" ]]; then
-    nmultiple=$1
-    shift
-    if [[ $nmultiple -gt 8 ]]; then nmultiple=8; fi
-else
-    nmultiple=6
-fi
-
-
 function colorstr()
 {
     local  row=$1
@@ -120,33 +104,28 @@ function fireworks()
             done
         fi
 
-        colorstr $((row)) $((col - 1)) "$color3" '***'
-        colorstr $((row - 1)) $((col)) "$color3" '*'
-        colorstr $((row + 1)) $((col)) "$color3" '*'
+        colorstr $((row)) $((col - 2)) "$color3" '*****'
+        colorstr $((row + 1)) $((col - 1)) "$color3" '***'
+        colorstr $((row - 1)) $((col - 1)) "$color3" '***'
+        colorstr $((row - 2)) $((col)) "$color3" '*'
+        colorstr $((row + 2)) $((col)) "$color3" '*'
     fi
 }
 
-for i in $(seq 1 $nsingle)
-do
-    clear
-    fireworks
-    sleep 1
-done
-
 clear
 
-pids=
-for i in $(seq 1 $nmultiple)
+pids=()
+for i in $(seq 1 10)
 do
     let multiple++
     lock_file=$lock_file_base.$i
     fireworks &
-    pids="$pids $!"
+    pids+=("$!")
 done
 
 trap 'kill -9 $pids 2>/dev/null' EXIT
 
-wait "$pids"
+wait "${pids[@]}"
 
 echo -n -e "\033[0m"
 
