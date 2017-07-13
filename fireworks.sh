@@ -4,7 +4,7 @@ rows=$(tput lines)
 cols=$(tput cols)
 colors=(red green blue purple cyan yellow brown)
 lock_file=
-lock_file_base=/tmp/$(basename $0 .sh)
+lock_file_base=/tmp/$(basename "$0" .sh)
 
 multiple=0
 if [[ "$1" ]]; then
@@ -43,16 +43,16 @@ function colorstr()
 
     if [[ $multiple -ne 0 ]]; then
         touch $lock_file
-        while [[ $(ls $lock_file_base.* 2>/dev/null | head -n 1) != $lock_file ]]
+        while [[ $(find "$lock_file_base".* 2>/dev/null | head -n 1) != "$lock_file" ]]
         do
             sleep 0.05
         done
     fi
 
-    tput cup $row $col
-    echo -n -e "\033[0;"$v"m"
+    tput cup "$row" "$col"
+    echo -n -e "\033[0;${v}m"
     set -f
-    echo -n $*
+    echo -n "$@"
     set +f
     if [[ $multiple -ne 0 ]]; then
         rm -f $lock_file
@@ -66,7 +66,7 @@ function center_colorstr()
     shift 2
     local  s="$*"
     local  slen=${#s}
-    colorstr $row $(((cols / 2) - (slen / 2))) $color "$s"
+    colorstr "$row" $(((cols / 2) - (slen / 2))) "$color" "$s"
 }
 
 function fireworks()
@@ -79,7 +79,7 @@ function fireworks()
     local color1=${colors[$((RANDOM % ${#colors[*]}))]}
     local color2=${colors[$((RANDOM % ${#colors[*]}))]}
     local color3=${colors[$((RANDOM % ${#colors[*]}))]}
-    while [[ $color1 == $color2  ||  $color1 == $color3  ||  $color2 == $color3 ]]
+    while [[ $color1 == "$color2" ||  $color1 == "$color3"  ||  $color2 == "$color3" ]]
     do
         color2=${colors[$((RANDOM % ${#colors[*]}))]}
         color3=${colors[$((RANDOM % ${#colors[*]}))]}
@@ -97,7 +97,7 @@ function fireworks()
 
         while [[ $h -gt 0 ]]
         do
-            colorstr $row $col $color1 '.'
+            colorstr $row $col "$color1" '.'
             let row--
             if [[ $((col + slant)) -ge $((cols - 3))  ||  $((col + slant)) -le 2 ]]; then break; fi
             let col+=slant
@@ -111,7 +111,7 @@ function fireworks()
 
             while [[ $h -gt 0 ]]
             do
-                colorstr $row $col $color2 '.'
+                colorstr $row $col "$color2" '.'
                 let row++
                 if [[ $((col + slant)) -ge $((cols - 3))  ||  $((col + slant)) -le 2 ]]; then break; fi
                 let col+=slant
@@ -120,9 +120,9 @@ function fireworks()
             done
         fi
 
-        colorstr $((row)) $((col - 1)) $color3 '***'
-        colorstr $((row - 1)) $((col)) $color3 '*'
-        colorstr $((row + 1)) $((col)) $color3 '*'
+        colorstr $((row)) $((col - 1)) "$color3" '***'
+        colorstr $((row - 1)) $((col)) "$color3" '*'
+        colorstr $((row + 1)) $((col)) "$color3" '*'
     fi
 }
 
@@ -144,9 +144,9 @@ do
     pids="$pids $!"
 done
 
-trap "kill -9 $pids 2>/dev/null" EXIT
+trap 'kill -9 $pids 2>/dev/null' EXIT
 
-wait $pids
+wait "$pids"
 
 echo -n -e "\033[0m"
 
