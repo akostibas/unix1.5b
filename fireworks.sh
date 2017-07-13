@@ -50,7 +50,7 @@ function colorstr()
     fi
 
     tput cup $row $col
-    echo -n -e "\e["$v"m"
+    echo -n -e "\033[0;"$v"m"
     set -f
     echo -n $*
     set +f
@@ -147,13 +147,9 @@ done
 trap "kill -9 $pids 2>/dev/null" EXIT
 
 wait $pids
+
+echo -n -e "\033[0m"
+
 sleep 3
 
-clear
-center_colorstr $((rows / 2 - 1)) red "Hope you enjoyed the show!"
-center_colorstr $((rows / 2 + 1)) red "Happy 4th of July"
-center_colorstr $((rows / 2 + 3)) red "Your Friends at Linux Journal"
-echo
-
-sleep 5
 clear
